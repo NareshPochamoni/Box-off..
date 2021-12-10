@@ -7,13 +7,16 @@ const Home = () => {
 
     const [input,setInput]=useState('');
     const [results,setResults]=useState(null);
+    const [searchOption,setSearchOption]=useState('shows');
+
+    const isSearchShow= searchOption==='shows'
 
     const onInputChange=(ev)=>{
         setInput(ev.target.value);
     }
     const onSearch=()=>{
 
-        apiGet(`/search/shows?q=${input}`).then(result=>{
+        apiGet(`/search/${searchOption}?q=${input}`).then(result=>{
             setResults(result);
 
         
@@ -34,19 +37,36 @@ const Home = () => {
         }
         if(results && results.length>0)
         {
-            return <div> {results.map((item)=><div key={item.show.id}>{item.show.name}</div>)}</div>;
+            return results[0].show ? <div> {results.map((item)=><div key={item.show.id}>{item.show.name}</div>)}</div>:
+            <div> {results.map((item)=><div key={item.person.id}>{item.person.name}</div>)}</div>
         }
         return null;
+
+    }
+    const onRadioChange=(ev)=>{
+        setSearchOption(ev.target.value);
 
     }
 
     return (
         <MainPageLayout>
-            <input type="text" onChange={onInputChange} onKeyDown={onKeyDown} value={input}/>
-            <button type="button" onClick={onSearch} >Search</button>
+            <input type="text" onChange={onInputChange} onKeyDown={onKeyDown} value={input} placeholder='search for something'/>
+
+            <div> 
+            <label htmlFor='show-search'>
+                <input type="radio" value="shows" onChange={onRadioChange} checked={isSearchShow}/>
+                Shows
+            </label>
+            <label htmlFor='actor-search'>
+                <input type="radio" value="people" onChange={onRadioChange}  checked={!isSearchShow}/>
+                Actors
+            </label>
+            </div>
+
+            <button type="button" onClick={onSearch}  >Search</button>
             {renderResults()}
         </MainPageLayout>
     )
 }
 
-export default Home
+export default Home;
